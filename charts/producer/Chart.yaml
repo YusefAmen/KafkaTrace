@@ -1,0 +1,32 @@
+apiVersion: v2
+name: producer
+description: KafkaTrace Producer Service - Event producer for Kafka-based event streaming
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+# TODO: Add maintainer information
+# maintainers:
+#   - name: Your Name
+#     email: your-email@example.com
+
+# TODO: Add keywords for Helm Hub discovery
+# keywords:
+#   - kafka
+#   - event-streaming
+#   - microservice
+#   - fastapi
+
+# TODO: Add home page URL
+# home: https://github.com/your-org/kafkatrace
+
+# TODO: Add sources repository
+# sources:
+#   - https://github.com/your-org/kafkatrace
+
+# TODO: Add dependencies if needed (e.g., for database, Redis)
+# dependencies:
+#   - name: postgresql
+#     version: 12.x.x
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: postgresql.enabled 

@@ -1,0 +1,215 @@
+# Alerting rules for KafkaTrace
+# This helps you learn SRE-style alerting patterns and monitoring best practices
+
+groups:
+  - name: kafkatrace
+    rules:
+      # TODO: Add service availability alerts
+      # This helps you learn service-level monitoring
+      - alert: ProducerServiceDown
+        expr: up{job="kafkatrace-producer"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: producer
+        annotations:
+          summary: "Producer service is down"
+          description: "Producer service has been down for more than 1 minute"
+          # TODO: Add runbook links
+          # runbook_url: "https://runbooks.example.com/producer-down"
+
+      - alert: ConsumerServiceDown
+        expr: up{job="kafkatrace-consumer"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: consumer
+        annotations:
+          summary: "Consumer service is down"
+          description: "Consumer service has been down for more than 1 minute"
+
+      # TODO: Add Kafka connection alerts
+      # This helps you learn dependency monitoring
+      - alert: KafkaConnectionLost
+        expr: kafka_connection_status == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: kafka
+        annotations:
+          summary: "Kafka connection lost"
+          description: "Service has lost connection to Kafka cluster"
+
+      # TODO: Add event processing alerts
+      # This helps you learn business metrics monitoring
+      - alert: HighEventProcessingErrors
+        expr: rate(events_consumed_total{status="error"}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: consumer
+        annotations:
+          summary: "High event processing error rate"
+          description: "Event processing error rate is above 10% for 2 minutes"
+
+      - alert: LowEventProductionRate
+        expr: rate(events_produced_total[5m]) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: producer
+        annotations:
+          summary: "Low event production rate"
+          description: "Event production rate is below 0.1 events/second for 5 minutes"
+
+      # TODO: Add latency alerts
+      # This helps you learn performance monitoring
+      - alert: HighEventProcessingLatency
+        expr: histogram_quantile(0.95, rate(event_processing_duration_seconds_bucket[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+          service: consumer
+        annotations:
+          summary: "High event processing latency"
+          description: "95th percentile event processing latency is above 1 second"
+
+      - alert: HighEventProductionLatency
+        expr: histogram_quantile(0.95, rate(event_production_duration_seconds_bucket[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          service: producer
+        annotations:
+          summary: "High event production latency"
+          description: "95th percentile event production latency is above 0.5 seconds"
+
+      # TODO: Add consumer lag alerts
+      # This helps you learn message queue monitoring
+      - alert: HighConsumerLag
+        expr: consumer_lag > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: consumer
+        annotations:
+          summary: "High consumer lag"
+          description: "Consumer lag is above 1000 messages for 5 minutes"
+
+      # TODO: Add resource utilization alerts
+      # This helps you learn infrastructure monitoring
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% for 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 85% for 5 minutes"
+
+      # TODO: Add disk space alerts
+      # This helps you learn storage monitoring
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: infrastructure
+        annotations:
+          summary: "High disk usage"
+          description: "Disk usage is above 85% for 5 minutes"
+
+      # TODO: Add pod restart alerts
+      # This helps you learn Kubernetes monitoring
+      - alert: HighPodRestartRate
+        expr: increase(kube_pod_container_status_restarts_total[15m]) > 5
+        for: 1m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "High pod restart rate"
+          description: "Pod has restarted more than 5 times in the last 15 minutes"
+
+      # TODO: Add network connectivity alerts
+      # This helps you learn network monitoring
+      - alert: NetworkConnectivityIssues
+        expr: up{job=~"kafkatrace-.*"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: network
+        annotations:
+          summary: "Network connectivity issues"
+          description: "Services are unreachable due to network issues"
+
+      # TODO: Add custom business alerts
+      # This helps you learn business metrics monitoring
+      - alert: UnusualEventPattern
+        expr: rate(events_produced_total{event_type="error_log"}[5m]) > rate(events_produced_total[5m]) * 0.5
+        for: 2m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "Unusual event pattern detected"
+          description: "Error log events are more than 50% of total events"
+
+      # TODO: Add SLA violation alerts
+      # This helps you learn SLA monitoring
+      - alert: SLABreach
+        expr: histogram_quantile(0.99, rate(event_processing_duration_seconds_bucket[5m])) > 2
+        for: 1m
+        labels:
+          severity: critical
+          service: sla
+        annotations:
+          summary: "SLA breach detected"
+          description: "99th percentile processing time exceeds 2 second SLA"
+
+      # TODO: Add capacity planning alerts
+      # This helps you learn capacity management
+      - alert: ApproachingCapacity
+        expr: rate(events_produced_total[5m]) > 100
+        for: 10m
+        labels:
+          severity: info
+          service: capacity
+        annotations:
+          summary: "Approaching capacity limits"
+          description: "Event production rate is consistently high, consider scaling"
+
+      # TODO: Add security alerts
+      # This helps you learn security monitoring
+      - alert: UnauthorizedAccess
+        expr: increase(http_requests_total{status=~"4.."}[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "Unauthorized access attempts"
+          description: "High rate of 4xx errors indicating unauthorized access attempts"
+
+      # TODO: Add data quality alerts
+      # This helps you learn data quality monitoring
+      - alert: DataQualityIssues
+        expr: rate(events_consumed_total{status="error"}[5m]) / rate(events_consumed_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: data-quality
+        annotations:
+          summary: "Data quality issues detected"
+          description: "More than 5% of events are failing processing due to data quality issues" 

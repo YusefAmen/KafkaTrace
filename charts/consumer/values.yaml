@@ -1,0 +1,228 @@
+# Default values for consumer service
+# This helps you learn Helm configuration management and best practices
+
+# TODO: Configure replica count based on your load requirements
+# This helps you learn horizontal scaling patterns
+replicaCount: 1
+
+# TODO: Configure image settings for your container registry
+# This helps you learn container image management
+image:
+  repository: kafkatrace/consumer
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+  # TODO: Add image pull secrets for private registries
+  # pullSecrets:
+  #   - name: regcred
+
+# TODO: Configure image pull secrets for private registries
+# This helps you learn Kubernetes secrets management
+imagePullSecrets: []
+# - name: regcred
+
+# TODO: Configure service account for RBAC
+# This helps you learn Kubernetes RBAC and security
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# TODO: Configure pod annotations for additional metadata
+# This helps you learn Kubernetes metadata management
+podAnnotations: {}
+# prometheus.io/scrape: "true"
+# prometheus.io/port: "8000"
+
+# TODO: Configure pod security context for security hardening
+# This helps you learn container security best practices
+podSecurityContext: {}
+  # fsGroup: 2000
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# TODO: Configure container security context
+# This helps you learn container security best practices
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# TODO: Configure service settings
+# This helps you learn Kubernetes service management
+service:
+  type: ClusterIP
+  port: 8000
+  # TODO: Add annotations for service mesh integration
+  # annotations:
+  #   service.beta.kubernetes.io/aws-load-balancer-type: nlb
+
+# TODO: Configure ingress for external access
+# This helps you learn ingress management and routing
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: consumer.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: consumer-tls
+  #    hosts:
+  #      - consumer.local
+
+# TODO: Configure resource limits and requests
+# This helps you learn Kubernetes resource management
+resources:
+  # TODO: Adjust these values based on your application's needs
+  # This helps you learn capacity planning and resource optimization
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+# TODO: Configure autoscaling settings
+# This helps you learn horizontal pod autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  # TODO: Add custom metrics for autoscaling
+  # targetMemoryUtilizationPercentage: 80
+
+# TODO: Configure node selector for pod placement
+# This helps you learn Kubernetes node management
+nodeSelector: {}
+
+# TODO: Configure tolerations for pod scheduling
+# This helps you learn Kubernetes scheduling
+tolerations: []
+
+# TODO: Configure affinity for pod placement
+# This helps you learn Kubernetes scheduling and high availability
+affinity: {}
+
+# TODO: Configure environment variables
+# This helps you learn application configuration management
+env:
+  # TODO: Configure Kafka connection settings
+  KAFKA_BOOTSTRAP_SERVERS: "kafka.kafka.svc.cluster.local:9092"
+  KAFKA_TOPIC: "events"
+  KAFKA_GROUP_ID: "kafkatrace-consumer-group"
+  KAFKA_AUTO_OFFSET_RESET: "earliest"
+  
+  # TODO: Configure application settings
+  LOG_LEVEL: "INFO"
+  METRICS_PORT: "8000"
+  
+  # TODO: Add database connection settings if needed
+  # DATABASE_URL: "postgresql://user:pass@postgres:5432/kafkatrace"
+  
+  # TODO: Add Redis connection settings if needed
+  # REDIS_URL: "redis://redis:6379/0"
+
+# TODO: Configure config maps for configuration files
+# This helps you learn configuration management patterns
+configMap:
+  enabled: false
+  data: {}
+  # app.conf: |
+  #   [kafka]
+  #   bootstrap_servers = kafka.kafka.svc.cluster.local:9092
+  #   topic = events
+
+# TODO: Configure secrets for sensitive data
+# This helps you learn secrets management
+secrets:
+  enabled: false
+  data: {}
+  # kafka-password: base64-encoded-password
+
+# TODO: Configure persistent volumes if needed
+# This helps you learn storage management
+persistence:
+  enabled: false
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+# TODO: Configure liveness and readiness probes
+# This helps you learn health check patterns
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# TODO: Configure startup probe for slow-starting applications
+# This helps you learn startup optimization
+startupProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 30
+
+# TODO: Configure service monitor for Prometheus
+# This helps you learn observability patterns
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
+  path: /metrics
+  port: http
+
+# TODO: Configure pod disruption budget for high availability
+# This helps you learn high availability patterns
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+# TODO: Configure network policies for security
+# This helps you learn network security
+networkPolicy:
+  enabled: false
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: kafka
+      ports:
+        - protocol: TCP
+          port: 9092
+
+# TODO: Configure horizontal pod autoscaler
+# This helps you learn autoscaling patterns
+hpa:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80 

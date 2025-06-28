@@ -1,0 +1,151 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "KafkaTrace Overview",
+    "tags": ["kafka", "event-streaming", "microservices"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=~\"kafkatrace-.*\"}",
+            "legendFormat": "{{job}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Event Production Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(events_produced_total[5m])",
+            "legendFormat": "{{event_type}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Event Consumption Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(events_consumed_total[5m])",
+            "legendFormat": "{{event_type}} - {{status}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Processing Latency (95th percentile)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(event_processing_duration_seconds_bucket[5m]))",
+            "legendFormat": "{{event_type}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Kafka Connection Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "kafka_connection_status",
+            "legendFormat": "{{job}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Consumer Lag",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "consumer_lag",
+            "legendFormat": "{{topic}} - partition {{partition}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 18, "x": 6, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(events_consumed_total{status=\"error\"}[5m]) / rate(events_consumed_total[5m])",
+            "legendFormat": "Error Rate"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 8,
+        "title": "Resource Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{container=~\"producer|consumer\"}[5m]) * 100",
+            "legendFormat": "CPU - {{container}}"
+          },
+          {
+            "expr": "container_memory_usage_bytes{container=~\"producer|consumer\"} / 1024 / 1024",
+            "legendFormat": "Memory (MB) - {{container}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "schemaVersion": 27,
+    "version": 1,
+    "links": [],
+    "annotations": {
+      "list": []
+    },
+    "templating": {
+      "list": []
+    }
+  }
+} 

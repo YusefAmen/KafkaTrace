@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kafkatrace
+  labels:
+    name: kafkatrace
+    # TODO: Add additional labels for organization and project tracking
+    # This helps you learn Kubernetes resource organization
+    # project: kafkatrace
+    # environment: development 

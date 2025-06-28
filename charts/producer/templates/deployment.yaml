@@ -1,0 +1,183 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "producer.fullname" . }}
+  labels:
+    {{- include "producer.labels" . | nindent 4 }}
+spec:
+  # TODO: Configure replica count based on your load requirements
+  # This helps you learn horizontal scaling patterns
+  replicas: {{ .Values.replicaCount }}
+  
+  selector:
+    matchLabels:
+      {{- include "producer.selectorLabels" . | nindent 6 }}
+  
+  template:
+    metadata:
+      labels:
+        {{- include "producer.selectorLabels" . | nindent 8 }}
+      # TODO: Add pod annotations for additional metadata
+      # This helps you learn Kubernetes metadata management
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    
+    spec:
+      # TODO: Configure image pull secrets for private registries
+      # This helps you learn Kubernetes secrets management
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      
+      # TODO: Configure service account for RBAC
+      # This helps you learn Kubernetes RBAC and security
+      serviceAccountName: {{ include "producer.serviceAccountName" . }}
+      
+      # TODO: Configure pod security context for security hardening
+      # This helps you learn container security best practices
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      
+      # TODO: Configure node selector for pod placement
+      # This helps you learn Kubernetes node management
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      
+      # TODO: Configure tolerations for pod scheduling
+      # This helps you learn Kubernetes scheduling
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      
+      # TODO: Configure affinity for pod placement
+      # This helps you learn Kubernetes scheduling and high availability
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      
+      containers:
+        - name: {{ .Chart.Name }}
+          # TODO: Configure image settings for your container registry
+          # This helps you learn container image management
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          
+          # TODO: Configure container security context
+          # This helps you learn container security best practices
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          
+          # TODO: Configure ports for service communication
+          # This helps you learn Kubernetes networking
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+            # TODO: Add metrics port for Prometheus scraping
+            # - name: metrics
+            #   containerPort: 8000
+            #   protocol: TCP
+          
+          # TODO: Configure environment variables
+          # This helps you learn application configuration management
+          env:
+            # TODO: Configure Kafka connection settings
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.env.KAFKA_BOOTSTRAP_SERVERS | quote }}
+            - name: KAFKA_TOPIC
+              value: {{ .Values.env.KAFKA_TOPIC | quote }}
+            - name: KAFKA_RETRIES
+              value: {{ .Values.env.KAFKA_RETRIES | quote }}
+            - name: KAFKA_ACKS
+              value: {{ .Values.env.KAFKA_ACKS | quote }}
+            
+            # TODO: Configure application settings
+            - name: LOG_LEVEL
+              value: {{ .Values.env.LOG_LEVEL | quote }}
+            - name: METRICS_PORT
+              value: {{ .Values.env.METRICS_PORT | quote }}
+            
+            # TODO: Add database connection settings if needed
+            # - name: DATABASE_URL
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: {{ include "producer.fullname" . }}-db-secret
+            #       key: database-url
+            
+            # TODO: Add Redis connection settings if needed
+            # - name: REDIS_URL
+            #   value: {{ .Values.env.REDIS_URL | quote }}
+          
+          # TODO: Configure liveness probe for health monitoring
+          # This helps you learn health check patterns
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          
+          # TODO: Configure readiness probe for traffic routing
+          # This helps you learn health check patterns
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          
+          # TODO: Configure startup probe for slow-starting applications
+          # This helps you learn startup optimization
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          
+          # TODO: Configure resource limits and requests
+          # This helps you learn Kubernetes resource management
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          
+          # TODO: Configure volume mounts for persistent storage
+          # This helps you learn storage management
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+          {{- end }}
+      
+      # TODO: Configure volumes for persistent storage
+      # This helps you learn storage management
+      {{- if .Values.persistence.enabled }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "producer.fullname" . }}-pvc
+      {{- end }}
+      
+      # TODO: Configure config maps for configuration files
+      # This helps you learn configuration management patterns
+      {{- if .Values.configMap.enabled }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "producer.fullname" . }}-config
+      {{- end }}
+      
+      # TODO: Configure secrets for sensitive data
+      # This helps you learn secrets management
+      {{- if .Values.secrets.enabled }}
+      volumes:
+        - name: secrets
+          secret:
+            secretName: {{ include "producer.fullname" . }}-secrets
+      {{- end }} 
