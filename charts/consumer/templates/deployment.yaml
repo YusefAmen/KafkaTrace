@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "consumer.fullname" . }}
+  labels:
+    {{- include "consumer.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "consumer.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "consumer.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "consumer.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+              # TODO: Add readiness probe for better Kubernetes health checking
+              # This helps you learn Kubernetes health check patterns
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.kafka.bootstrapServers | quote }}
+            - name: KAFKA_TOPIC
+              value: {{ .Values.kafka.topic | quote }}
+            - name: KAFKA_GROUP_ID
+              value: {{ .Values.kafka.groupId | quote }}
+            - name: KAFKA_AUTO_OFFSET_RESET
+              value: {{ .Values.kafka.autoOffsetReset | quote }}
+            # TODO: Add environment variables for Kafka authentication
+            # This helps you learn secure Kafka configuration
+            # - name: KAFKA_SASL_MECHANISM
+            #   value: "PLAIN"
+            # - name: KAFKA_SECURITY_PROTOCOL
+            #   value: "SASL_PLAINTEXT"
+            # - name: KAFKA_USERNAME
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: kafka-auth-secret
+            #       key: username
+            # - name: KAFKA_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: kafka-auth-secret
+            #       key: password
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          # TODO: Add volume mounts for configuration files
+          # This helps you learn Kubernetes configuration management
+          # volumeMounts:
+          #   - name: config-volume
+          #     mountPath: /app/config
+      # TODO: Add volumes for configuration and secrets
+      # This helps you learn Kubernetes storage patterns
+      # volumes:
+      #   - name: config-volume
+      #     configMap:
+      #       name: {{ include "consumer.fullname" . }}-config
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }} 

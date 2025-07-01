@@ -8,8 +8,8 @@ replicaCount: 1
 # TODO: Configure image settings for your container registry
 # This helps you learn container image management
 image:
-  repository: kafkatrace/producer
-  tag: "1.0.0"
+  repository: kafkatrace-producer
+  tag: "latest"
   pullPolicy: IfNotPresent
   # TODO: Add image pull secrets for private registries
   # pullSecrets:

@@ -1,0 +1,130 @@
+# KafkaTrace Kafka Configuration
+# This file provides instructions for using Bitnami's Kafka chart
+# with proper configuration for the KafkaTrace project.
+
+# IMPORTANT: This is NOT a complete Kafka chart. Instead, use Bitnami's Kafka chart:
+# helm repo add bitnami https://charts.bitnami.com/bitnami
+# helm install kafka bitnami/kafka --namespace kafka --create-namespace
+
+# The following values are recommended for the KafkaTrace project:
+
+# Kafka Configuration
+kafka:
+  # Number of Kafka brokers (replicas)
+  replicaCount: 1
+  
+  # Kafka configuration
+  config:
+    # Enable auto creation of topics
+    auto.create.topics.enable: "true"
+    # Default number of partitions for new topics
+    num.partitions: 3
+    # Default replication factor for new topics
+    default.replication.factor: 1
+    # Log retention settings
+    log.retention.hours: 168  # 7 days
+    log.retention.bytes: 1073741824  # 1GB
+    # Cleanup policy
+    log.cleanup.policy: "delete"
+    # Compression settings
+    compression.type: "producer"
+  
+  # Zookeeper configuration (required for Kafka)
+  zookeeper:
+    enabled: true
+    replicaCount: 1
+    
+  # Persistence settings
+  persistence:
+    enabled: true
+    size: 8Gi
+    
+  # Resource limits
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+      
+  # Service configuration
+  service:
+    type: ClusterIP
+    
+  # Security settings (TODO: Enable for production)
+  # This helps you learn Kafka security best practices
+  # auth:
+  #   clientProtocol: sasl
+  #   interBrokerProtocol: sasl
+  #   sasl:
+  #     mechanisms:
+  #       - plain
+  #   tls:
+  #     enabled: true
+  #     existingSecret: kafka-tls-secret
+
+# TODO: Add Kafka Connect configuration for data pipelines
+# This helps you learn event streaming data integration patterns
+# kafkaConnect:
+#   enabled: false
+#   replicaCount: 1
+#   config:
+#     group.id: "kafkatrace-connect"
+#     key.converter: "org.apache.kafka.connect.json.JsonConverter"
+#     value.converter: "org.apache.kafka.connect.json.JsonConverter"
+
+# TODO: Add Schema Registry configuration for schema management
+# This helps you learn schema evolution and compatibility patterns
+# schemaRegistry:
+#   enabled: false
+#   replicaCount: 1
+#   config:
+#     kafkastore.bootstrap.servers: "kafka.kafka.svc.cluster.local:9092"
+
+# TODO: Add Kafka UI for monitoring and management
+# This helps you learn Kafka administration and monitoring
+# kafkaUi:
+#   enabled: false
+#   replicaCount: 1
+#   config:
+#     KAFKA_CLUSTERS_0_NAME: "kafkatrace"
+#     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka.kafka.svc.cluster.local:9092"
+
+# Monitoring configuration
+monitoring:
+  # Enable Prometheus metrics
+  kafka:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+  # Enable Prometheus metrics for Zookeeper
+  zookeeper:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 30s
+
+# TODO: Add backup and disaster recovery configuration
+# This helps you learn data protection and recovery patterns
+# backup:
+#   enabled: false
+#   schedule: "0 2 * * *"  # Daily at 2 AM
+#   retention: 7  # Keep backups for 7 days
+#   storage:
+#     type: s3
+#     bucket: "kafkatrace-backups"
+
+# TODO: Add network policies for security
+# This helps you learn Kubernetes network security
+# networkPolicy:
+#   enabled: false
+#   ingress:
+#     - from:
+#         - namespaceSelector:
+#             matchLabels:
+#               name: kafkatrace
+#       ports:
+#         - protocol: TCP
+#           port: 9092 

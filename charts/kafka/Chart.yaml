@@ -1,0 +1,16 @@
+apiVersion: v2
+name: kafka
+description: A Helm chart for Kafka using Bitnami's Kafka chart
+type: application
+version: 0.1.0
+appVersion: "3.5.1"
+keywords:
+  - kafka
+  - event-streaming
+  - messaging
+home: https://kafka.apache.org/
+sources:
+  - https://github.com/bitnami/charts/tree/main/bitnami/kafka
+maintainers:
+  - name: KafkaTrace Team
+    email: team@kafkatrace.com 
